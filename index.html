@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dear Lottery - Personalized Predictions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #8a2be2, #4b0082);
+            min-height: 100vh;
+        }
+        
+        .card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .generate-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .number-pill {
+            transition: all 0.3s ease;
+        }
+        
+        .number-pill:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .morning-gradient {
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+        }
+        
+        .night-gradient {
+            background: linear-gradient(135deg, #141e30, #243b55);
+        }
+        
+        .results-container {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .results-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .results-container::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-2 floating">✨ Dear Lottery ✨</h1>
+            <p class="text-xl text-white opacity-80">Personalized Number Predictions</p>
+        </header>
+        
+        <div class="max-w-4xl mx-auto">
+            <!-- Name Input Section -->
+            <div class="card rounded-xl p-6 text-center mb-8">
+                <h2 class="text-2xl font-semibold text-white mb-4">Enter Your Name for Personalized Predictions</h2>
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                    <input type="text" id="user-name" placeholder="Your Name" class="input-field px-4 py-3 rounded-lg w-full md:w-1/2 text-lg">
+                    <div class="flex gap-2">
+                        <button id="generate-morning" class="generate-btn bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg whitespace-nowrap">
+                            Morning Draw
+                        </button>
+                        <button id="generate-night" class="generate-btn bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg whitespace-nowrap">
+                            Night Draw
+                        </button>
+                    </div>
+                </div>
+                <p class="text-white text-sm mt-4 opacity-70">Enter your name to generate personalized lucky numbers</p>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <div class="card rounded-xl p-6 mb-8">
+                    <div class="flex items-center justify-center mb-4">
+                        <span id="time-icon" class="text-3xl mr-2">☀️</span>
+                        <h2 class="text-2xl font-semibold text-white">
+                            <span id="time-label">Morning</span> Draw for <span id="user-name-display">User</span>
+                        </h2>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-white text-lg mb-2 text-center">Your Lucky Charm</h3>
+                        <div class="flex justify-center items-center">
+                            <div class="text-center">
+                                <div class="text-5xl mb-2" id="lucky-emoji">🍀</div>
+                                <p class="text-white" id="lucky-message">Good luck is coming your way!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 5-Digit Numbers -->
+                    <div class="mb-8">
+                        <h3 class="text-white text-lg mb-3 text-center">20 Five-Digit Predictions</h3>
+                        <div class="results-container">
+                            <div id="five-digit-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                <!-- 5-digit numbers will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 4-Digit Numbers -->
+                    <div>
+                        <h3 class="text-white text-lg mb-3 text-center">30 Four-Digit Predictions</h3>
+                        <div class="results-container">
+                            <div id="four-digit-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <!-- 4-digit numbers will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-white text-sm mt-6 opacity-70 text-center">Generated on: <span id="timestamp">Never</span></p>
+                </div>
+                
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4 text-center">Hot & Cold Numbers</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="text-white text-center mb-2">Hot Numbers</h4>
+                            <div class="flex flex-wrap justify-center gap-2" id="hot-numbers">
+                                <!-- Hot numbers will be generated here -->
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-center mb-2">Cold Numbers</h4>
+                            <div class="flex flex-wrap justify-center gap-2" id="cold-numbers">
+                                <!-- Cold numbers will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-12 text-center text-white opacity-70">
+            <p class="mb-2">Remember: This is just for fun! Play responsibly.</p>
+            <p>© 2023 Dear Lottery - For entertainment purposes only</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const morningBtn = document.getElementById('generate-morning');
+            const nightBtn = document.getElementById('generate-night');
+            const userNameInput = document.getElementById('user-name');
+            const resultsSection = document.getElementById('results-section');
+            const userNameDisplay = document.getElementById('user-name-display');
+            const timeIcon = document.getElementById('time-icon');
+            const timeLabel = document.getElementById('time-label');
+            const fiveDigitResults = document.getElementById('five-digit-results');
+            const fourDigitResults = document.getElementById('four-digit-results');
+            const timestamp = document.getElementById('timestamp');
+            const luckyEmoji = document.getElementById('lucky-emoji');
+            const luckyMessage = document.getElementById('lucky-message');
+            const hotNumbers = document.getElementById('hot-numbers');
+            const coldNumbers = document.getElementById('cold-numbers');
+            
+            const luckyEmojis = ['🍀', '🌟', '🔮', '🎯', '🧿', '🌈', '💫', '🎁', '🎊', '🏆'];
+            const luckyMessages = [
+                'Good luck is coming your way!',
+                'Fortune favors the bold today!',
+                'Your lucky stars are aligned!',
+                'Today might be your lucky day!',
+                'The universe is sending you good vibes!',
+                'Prosperity is on the horizon!',
+                'Your numbers have special energy today!',
+                'Luck is in the air!',
+                'A pleasant surprise awaits you!',
+                'Your patience will be rewarded!'
+            ];
+            
+            // Generate a random number based on name and seed
+            function generateNumberFromName(name, seed, length) {
+                // Simple hash function for the name
+                let hash = 0;
+                for (let i = 0; i < name.length; i++) {
+                    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                
+                // Use the hash as a seed for the random number generator
+                let random = Math.abs((Math.sin(hash + seed) * 10000)) % 1;
+                
+                // Generate a number of specified length
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += Math.floor(random * 10);
+                    random = Math.abs((Math.sin(random) * 10000)) % 1;
+                }
+                
+                return result;
+            }
+            
+            // Generate multiple unique numbers
+            function generateUniqueNumbers(name, count, length, isMorning) {
+                const numbers = new Set();
+                let attempts = 0;
+                const maxAttempts = count * 10; // Prevent infinite loop
+                
+                while (numbers.size < count && attempts < maxAttempts) {
+                    const seed = numbers.size + (isMorning ? 1000 : 2000) + attempts;
+                    const num = generateNumberFromName(name, seed, length);
+                    numbers.add(num);
+                    attempts++;
+                }
+                
+                return Array.from(numbers);
+            }
+            
+            function formatTimestamp() {
+                const now = new Date();
+                return now.toLocaleString();
+            }
+            
+            function updateLuckyCharm(name) {
+                // Use name to determine lucky charm (but still make it seem random)
+                const nameSum = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+                const index = nameSum % luckyEmojis.length;
+                
+                luckyEmoji.textContent = luckyEmojis[index];
+                luckyMessage.textContent = luckyMessages[index];
+            }
+            
+            function updateHotColdNumbers(name, isMorning) {
+                hotNumbers.innerHTML = '';
+                coldNumbers.innerHTML = '';
+                
+                // Generate hot numbers based on name
+                const nameHash = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+                
+                for (let i = 0; i < 5; i++) {
+                    const hotNum = (nameHash + i * (isMorning ? 7 : 13)) % 50 + 1;
+                    const span = document.createElement('span');
+                    span.className = 'bg-red-500 text-white px-3 py-1 rounded-full';
+                    span.textContent = hotNum.toString().padStart(2, '0');
+                    hotNumbers.appendChild(span);
+                }
+                
+                // Generate cold numbers based on name (different algorithm)
+                for (let i = 0; i < 5; i++) {
+                    const coldNum = (nameHash * (i + 1) + (isMorning ? 11 : 17)) % 50 + 1;
+                    const span = document.createElement('span');
+                    span.className = 'bg-blue-500 text-white px-3 py-1 rounded-full';
+                    span.textContent = coldNum.toString().padStart(2, '0');
+                    coldNumbers.appendChild(span);
+                }
+            }
+            
+            function displayNumbers(numbers, container, isMorning) {
+                container.innerHTML = '';
+                
+                numbers.forEach(num => {
+                    const div = document.createElement('div');
+                    div.className = `number-pill ${isMorning ? 'morning-gradient' : 'night-gradient'} text-white text-center py-2 px-3 rounded-lg font-bold`;
+                    div.textContent = num;
+                    container.appendChild(div);
+                });
+            }
+            
+            function generatePredictions(isMorning) {
+                const name = userNameInput.value.trim();
+                
+                if (!name) {
+                    alert('Please enter your name first!');
+                    return;
+                }
+                
+                // Update UI
+                resultsSection.classList.remove('hidden');
+                userNameDisplay.textContent = name;
+                timeIcon.textContent = isMorning ? '☀️' : '🌙';
+                timeLabel.textContent = isMorning ? 'Morning' : 'Night';
+                
+                // Generate numbers
+                const fiveDigitNumbers = generateUniqueNumbers(name, 20, 5, isMorning);
+                const fourDigitNumbers = generateUniqueNumbers(name, 30, 4, isMorning);
+                
+                // Display numbers
+                displayNumbers(fiveDigitNumbers, fiveDigitResults, isMorning);
+                displayNumbers(fourDigitNumbers, fourDigitResults, isMorning);
+                
+                // Update other elements
+                timestamp.textContent = formatTimestamp();
+                updateLuckyCharm(name);
+                updateHotColdNumbers(name, isMorning);
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            morningBtn.addEventListener('click', function() {
+                generatePredictions(true);
+            });
+            
+            nightBtn.addEventListener('click', function() {
+                generatePredictions(false);
+            });
+            
+            // Allow pressing Enter in the name input
+            userNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generatePredictions(true); // Default to morning
+                }
+            });
+        });
+    </script>
+</body>
+</html>
